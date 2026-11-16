@@ -1,6 +1,7 @@
 # Project guidance
 
 - Scope: a local, fictional-data support-ticket API. Keep its two-route design small and understandable.
+- Prefer straightforward syntax and explicit steps. Use advanced syntax only when it provides a necessary benefit, and explain unfamiliar constructs when introducing them. Match the owner's Express/Router/Mongoose/Zod learning baseline.
 - Before editing, read README.md and the files the change touches. Preserve unrelated work.
 - Validate HTTP input and AI output. Keep keys/connection strings in ignored local environment files; never print or commit them.
 - Use `npm ci --ignore-scripts`, `npm test`, and `npm audit --omit=dev` for dependency and regression checks. Networked checks use real credentials/quota; run them only when needed and keep their generated records local.
