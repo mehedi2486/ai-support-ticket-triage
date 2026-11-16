@@ -1,0 +1,16 @@
+node_modules/
+.cache/
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+
+# Local coaching, application and runtime records are not project deliverables.
+/feedback.md
+/OWNER-CHECK.md
+/SETUP.md
+/TASK-01.md
+/VERIFICATION.md
+/WALKTHROUGH.md
+/live-check.json
