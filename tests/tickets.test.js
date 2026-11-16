@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createApp } from "../app.js";
+import { startTestServer } from "./test-server.js";
 
 // Real local HTTP, but fixture storage and AI functions. Live services are checked separately.
 const id = "507f1f77bcf86cd799439011";
@@ -15,8 +16,7 @@ async function fixture(t, overrides = {}) {
   };
   const triage = async input => { inputs.push(input); return analysis; };
   const app = createApp({ Ticket, triage, ...overrides });
-  const server = app.listen(0, "127.0.0.1");
-  await new Promise((resolve, reject) => { server.once("listening", resolve); server.once("error", reject); });
+  const server = await startTestServer(app);
   t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
   const url = `http://127.0.0.1:${server.address().port}`;
   const post = body => fetch(`${url}/tickets`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
