@@ -2,6 +2,8 @@
 
 A small local API that summarizes fictional support issues, suggests a category and priority with Gemini, and saves validated results in MongoDB. Priority is advisory and needs human review.
 
+**Backend status:** the agreed local-demo scope is implemented: ticket creation and lookup, input/output validation, AI analysis, persistence and safe failures. The 15-test suite passes. Real Gemini/MongoDB creation and retrieval across a server restart were verified during development. Public deployment is outside this scope.
+
 A backend learning project directed by Mehedi Hasan. The initial implementation and tests were developed with an AI coding assistant; the walkthrough documents the code for study and review. Uses JavaScript ES modules, Express 5, MongoDB/Mongoose, Zod 4 and the Gemini REST API. [Follow the request flow](docs/walkthrough.md).
 
 ```text
