@@ -1,18 +1,20 @@
-# Support Ticket Triage API
+# Triage Desk
 
-A small local API that summarizes fictional support issues, suggests a category and priority with Gemini, and saves validated results in MongoDB. Priority is advisory and needs human review.
+A small React workspace that summarizes fictional support issues, suggests a category and priority with Gemini, and saves validated results in MongoDB. Priority is advisory and needs human review.
 
-**Backend status:** the agreed local-demo scope is implemented: ticket creation and lookup, input/output validation, AI analysis, persistence and safe failures. The 15-test suite passes. Real Gemini/MongoDB creation and retrieval across a server restart were verified during development. Public deployment is outside this scope.
+**Implemented:** responsive ticket form, loading/error states, AI result card, copyable ticket ID and saved-ticket lookup. The Express API handles input/output validation, AI analysis, persistence and safe failures. All 19 automated tests pass. A real browser create/retrieve flow and desktop/mobile layouts were checked. Public deployment is outside this scope.
 
-A backend learning project directed by Mehedi Hasan. The initial implementation and tests were developed with an AI coding assistant; the walkthrough documents the code for study and review. Uses JavaScript ES modules, Express 5, MongoDB/Mongoose, Zod 4 and the Gemini REST API. [Follow the request flow](docs/walkthrough.md).
+A learning project directed by Mehedi Hasan. The implementation and tests were developed with an AI coding assistant; the walkthroughs document the code for study and review. Uses React, Tailwind CSS, Vite, JavaScript ES modules, Express 5, MongoDB/Mongoose, Zod 4 and the Gemini REST API. [Backend walkthrough](docs/walkthrough.md) · [Frontend walkthrough](docs/frontend.md).
+
+![Triage Desk showing a fictional saved ticket](docs/images/ticket-desk.png)
 
 ```text
-HTTP request -> input validation -> Gemini -> output validation -> MongoDB -> response
+React form -> Express -> Zod -> Gemini -> Zod -> MongoDB -> React result
 ```
 
 ## Run
 
-Node.js 22+, npm 11.4.0 and a usable MongoDB connection are required.
+Node.js 22.12+ (tested on 22.13.1), npm 11.4.0 and a usable MongoDB connection are required.
 
 Clone the repository:
 
@@ -24,9 +26,14 @@ cd ai-support-ticket-triage
 1. Run `npm ci --ignore-scripts`.
 2. Copy `.env.example` to `.env` if no local environment file exists. Set GEMINI_API_KEY and MONGODB_URI locally. Keep them out of Git and chats. The verified model setting is gemini-3.5-flash-lite.
 3. Stop an older server in its own terminal before starting another instance on port 3001.
-4. Run `npm start`, or `npm run dev` for automatic restart after saved edits.
+4. Run `npm run build` to build the React frontend.
+5. Run `npm start`, then open [Triage Desk](http://127.0.0.1:3001).
 
-The server waits for MongoDB and binds only to http://127.0.0.1:3001. It uses the `triage_lab` database. Optional PORT overrides the port. There is no root-page UI; GET / returns JSON 404. The entry file loads `.env` itself, so plain Node/nodemon startup also works.
+The server waits for MongoDB and binds only to http://127.0.0.1:3001. It serves the built frontend and API from the same origin and uses the `triage_lab` database. Optional PORT overrides the port. If GET / returns JSON 404, run the build and restart the server. The entry file loads `.env` itself, so plain Node/nodemon startup also works.
+
+In the UI, choose **Use a sample issue**, then **Analyze & save ticket**. Copy the returned ID and use **Find ticket** to retrieve the stored analysis without another model call.
+
+For development, run `npm run dev` in one terminal and `npm run dev:frontend` in another. Open the Vite URL printed in the second terminal. Its `/tickets` proxy expects the backend on port 3001. Build again before viewing frontend changes through Express.
 
 ## Try it in Git Bash, macOS or Linux
 
@@ -93,6 +100,11 @@ Input limits: title 1-100 characters and body 1-1000 after trimming, strings onl
 ```text
 server.js                 configuration, DB connection and listening
 app.js                    Express setup and error responses
+frontend/src/App.jsx      form state, submission and saved-ticket lookup
+frontend/src/TicketResult.jsx  empty/loading/result views and copy ID
+frontend/src/api.js        browser requests with timeouts
+frontend/src/index.css     Tailwind styling and focus/reduced-motion rules
+frontend/vite.config.js   build and local development API proxy
 routes/tickets.js         POST and GET handlers
 db.js                     Mongoose ticket model and connection
 ticket-schema.js          Zod input schema
@@ -100,11 +112,15 @@ services/triage.js         Gemini request and Zod output validation
 scripts/                  connection and live-flow checks
 tests/                    local HTTP tests with fixture storage/AI
 docs/walkthrough.md       request flow and key concepts
+docs/frontend.md          frontend flow and basic React concepts
 ```
 
 ## Verification
 
-- `npm test`: 15 passing tests, using real local HTTP plus explicit fixture storage/AI; service tests use simulated fetch responses.
+- `npm test`: 19 passing tests, using real local HTTP plus explicit fixture storage/AI; service tests use simulated fetch responses. Includes frontend serving, security headers, missing builds and environment-file isolation.
+- `npm run build`: creates ignored `frontend/dist`; Express serves only that directory.
+- Browser checks: real Gemini/MongoDB creation (201) and saved lookup (200), whitespace/ID validation, absent ticket, copy/details, loading/disabled controls and a simulated provider 503. Desktop 1440px and mobile 390/320px layouts had no horizontal overflow or browser console errors. Automated DOM checks do not replace assistive-technology testing.
+- An intermittent Windows test failure was traced to `listen(0)` assigning a fetch-blocked low port (observed 3659). Test listeners now choose available high ports; 20 repeated HTTP suites passed after the fix. No HTTP assertions are retried.
 - `npm run check:ai`: one real synthetic model request.
 - `npm run check:db`: read-only MongoDB ping.
 - `npm run check:flow`: real API -> Gemini -> MongoDB creation, GET, process restart, GET again. This consumes provider quota and retains one clearly fictional demo ticket.
@@ -115,8 +131,8 @@ docs/walkthrough.md       request flow and key concepts
 
 Use fictional tickets only. Free-tier provider quota varies, and free-tier content may be used to improve the provider's products. Credentials stay in the ignored local environment file; no raw provider or database errors are returned. The AI has no tools and cannot execute actions. Input/output schemas constrain structure, not the correctness of its judgment.
 
-There are no users or authentication, frontend, agent, RAG, model training, public hosting or automatic retries. A ten-attempt-per-minute limiter is scoped to a single local process. Database writes happen only after valid AI output; if saving fails after a model call, that call has already consumed quota. Retrying POST can create another ticket; idempotency is outside this demo. Demonstration records remain until the database owner removes them; there is no deletion endpoint.
+There are no users or authentication, agent, RAG, model training, public hosting or automatic retries. A ten-attempt-per-minute limiter is scoped to a single local process. Database writes happen only after valid AI output; if saving fails after a model call, that call has already consumed quota. A browser timeout does not guarantee the server stopped processing. Retrying POST can create another ticket; idempotency is outside this demo. Demonstration records remain until the database owner removes them; there is no deletion endpoint or ticket-list endpoint.
 
 Do not expose this API publicly without revisiting authentication, rate limits, HTTPS, data retention and operational controls. A public source repository does not make the running API publicly hosted.
 
-[Step-by-step explanation](docs/walkthrough.md)
+[Backend explanation](docs/walkthrough.md) · [Frontend explanation](docs/frontend.md)

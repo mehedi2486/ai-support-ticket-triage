@@ -1,8 +1,9 @@
 import express from "express";
+import { fileURLToPath } from "node:url";
 import { Ticket as ticketModel } from "./db.js";
 import { createTicketRouter } from "./routes/tickets.js";
 
-export function createApp({ Ticket = ticketModel, triage }) {
+export function createApp({ Ticket = ticketModel, triage, frontendDir = fileURLToPath(new URL("./frontend/dist/", import.meta.url)) }) {
   const app = express();
   app.disable("x-powered-by");
   app.use((req, res, next) => {
@@ -11,6 +12,12 @@ export function createApp({ Ticket = ticketModel, triage }) {
   });
   app.use(express.json({ limit: "8kb" }));
   app.use("/tickets", createTicketRouter({ Ticket, triage }));
+  app.use(express.static(frontendDir, {
+    dotfiles: "ignore",
+    setHeaders(res) {
+      res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+    },
+  }));
   app.use((req, res) => res.status(404).json({ message: "Route not found" }));
   app.use((error, req, res, next) => {
     if (res.headersSent) return next(error);
