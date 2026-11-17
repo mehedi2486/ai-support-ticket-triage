@@ -2,7 +2,9 @@
 
 The app serves its React build and Express API from one service. MongoDB remains the external database. Use fictional reports only: this is a public portfolio demo without user accounts or private-ticket authorization.
 
-**Deployment status:** configuration prepared; a live URL is not verified by this document. Record the actual URL and deployed commit only after the live checks pass.
+**Live demo:** [triage-desk-mehedi.onrender.com](https://triage-desk-mehedi.onrender.com/). Verified 17 November 2026 on Render Free in Singapore, deployed source commit `8b55a967d1c86bccc645339a8d7d8543ac66d46c`. Automatic deployments are off.
+
+Live checks passed: HTTPS frontend, logo and database health returned200; the public browser created a fictional ticket through Gemini/MongoDB and showed its saved analysis; an independent HTTP lookup returned200 with that stored ticket. Environment-file access returned404 and a malformed ticket ID returned400. One real model request was used for this live check. Credentials remained in Render's environment settings, outside Git and client assets. No database network rule change or paid resource was needed. Browser control became unavailable before the final screenshot, so no new deployment screenshot is provided.
 
 ## Service configuration
 

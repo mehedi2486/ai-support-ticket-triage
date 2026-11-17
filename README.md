@@ -1,5 +1,7 @@
 # Triage Desk
 
+[Open the live demo](https://triage-desk-mehedi.onrender.com/) · Fictional reports only. The free service can take about a minute to wake after inactivity.
+
 A small React workspace that summarizes fictional support issues, suggests a category and priority with Gemini, and saves validated results in MongoDB. Priority is advisory and needs human review.
 
 **Implemented:** a focused create/find workspace, three example reports, loading/error states, a saved-analysis pane, copyable ticket ID and saved-ticket lookup. Field errors focus the invalid input; successful requests reveal the result on mobile. The Express API handles input/output validation, AI analysis, persistence and safe failures. All 28 automated tests pass. Render Free deployment is supported with a persistent daily AI budget and a health endpoint. [Deployment guide](docs/deployment.md).
