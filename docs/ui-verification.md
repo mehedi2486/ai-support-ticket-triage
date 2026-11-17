@@ -34,7 +34,7 @@ Browser checks used headless Chrome through Playwright. Ten screenshots and sani
 
 ## References and interpretation
 
-Header follow-up: added an authored vector logo/favicon and navy/blue/teal gradient. Build and browser checks passed at1440,746,390 and320px: asset loaded, no overlap/overflow,44px links, keyboard focus and favicon200. No AI calls were required. Independent review found no material header blocker.
+Header follow-up: added an authored vector logo/favicon to the original solid navy header, retaining its typography and simple links. Header rendering and responsive checks use real browser captures; no AI calls are needed.
 
 - Observed screenshot: [Linear issue creation](https://linear.app/docs/creating-issues) groups report context, properties and one create action in a compact editor. Applied the focused task hierarchy, not its assets or extra features.
 - Publisher description: [Plain's interface update](https://www.plain.com/changelog/redesigned-interface) emphasizes navigation, writing and timeline clarity. This is a vendor claim, not measured usability evidence.

@@ -30,15 +30,15 @@ input, textarea { caret-color: var(--accent); }
 fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
 a { text-underline-offset: 4px; }
 
-.app-header { background: linear-gradient(110deg, #172554 0%, #234fb3 58%, #0b7185 100%); color: #fff; }
+.app-header { background: var(--navy); color: #fff; }
 .header-inner { max-width: 1280px; margin: auto; padding: 0 32px; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.brand { display: flex; align-items: center; gap: 12px; min-height: 44px; color: #fff; text-decoration: none; font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
-.brand-mark { display: block; width: 40px; height: 40px; flex-shrink: 0; }
+.brand { display: flex; align-items: center; gap: 11px; min-height: 44px; color: #fff; text-decoration: none; font-size: 17px; font-weight: 650; letter-spacing: -.02em; }
+.brand-mark { display: block; width: 32px; height: 32px; flex-shrink: 0; }
 .header-links { display: flex; align-items: center; gap: 26px; font-size: 13px; }
-.header-links a { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 13px; border: 1px solid #ffffff70; border-radius: 7px; background: #ffffff0c; color: #fff; text-decoration: none; }
-.header-links a:hover { background: #00000020; border-color: #ffffffb3; }
+.header-links a { display: flex; align-items: center; gap: 7px; min-height: 44px; color: #fff; text-decoration: none; }
+.header-links a:hover { text-decoration: underline; }
 .app-header :focus-visible { outline-color: #fff; }
-.demo-label { color: #fff; }
+.demo-label { color: #ccd6e8; }
 .workspace { max-width: 1280px; margin: 0 auto; padding: 32px; }
 .workspace:focus { outline: none; }
 .workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 25px; }
@@ -152,8 +152,6 @@ a { text-underline-offset: 4px; }
 @media (max-width: 540px) {
   .header-inner { padding: 0 20px; min-height: 64px; }
   .header-links { gap: 12px; }
-  .brand { font-size: 17px; gap: 10px; }
-  .brand-mark { width: 36px; height: 36px; }
   .demo-label { display: none; }
   .workspace { padding: 24px 16px; }
   .workspace-heading h1 { font-size: 22px; }
