@@ -122,7 +122,7 @@ export default function App() {
     <a href="#main" className="skip-link">Skip to ticket workspace</a>
     <header className="app-header">
       <div className="header-inner">
-        <a className="brand" href="#main"><span className="brand-mark"><Icon name="ticket" /></span>Triage Desk</a>
+        <a className="brand" href="#main"><img className="brand-mark" src="/triage-mark.svg" width="40" height="40" alt="" />Triage Desk</a>
         <div className="header-links"><span className="demo-label">Local demo</span><a href="https://github.com/mehedi2486/ai-support-ticket-triage" target="_blank" rel="noreferrer">GitHub<Icon name="external" className="size-4" /><span className="sr-only">, opens a new tab</span></a></div>
       </div>
     </header>

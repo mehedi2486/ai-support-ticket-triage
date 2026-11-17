@@ -7,6 +7,9 @@ colors:
   accent: "#2959c8"
   accent-hover: "#2049aa"
   navy: "#1c2d4d"
+  header-start: "#172554"
+  header-middle: "#234fb3"
+  header-end: "#0b7185"
   line: "#dce2ec"
   ground: "#f1f4f9"
   panel: "#f7f9fc"
@@ -80,7 +83,7 @@ components:
 
 **Creative North Star: "The correction desk"**
 
-This document records the observed implementation. A blue-black shell frames a white editor and a pale analysis surface. Labels, input and saved output lead; decorative containers and marketing copy recede.
+This document records the observed implementation. A navy-to-blue-to-teal header frames a white editor and a pale analysis surface. Labels, input and saved output lead; decorative containers and marketing copy recede.
 
 The interface uses familiar web controls with compact type and visible task selection. Color distinguishes action, selection and meaningful state. The workspace supports ticket creation and ID lookup. Its visual direction may evolve after review.
 
@@ -94,7 +97,7 @@ The interface uses familiar web controls with compact type and visible task sele
 
 ### Primary
 
-Action blue marks primary buttons, active navigation, links and the caret. Its deeper variant is the primary-button hover state. Blue-black carries the header rather than the main work surface.
+Action blue marks primary buttons, active navigation, links and the caret. Its deeper variant is the primary-button hover state. The header uses a fixed110-degree gradient with start, middle and end colors at0%,58% and100%; text remains white.
 
 ### Neutral
 
@@ -126,6 +129,7 @@ The workbench has soft outer corners; controls use a smaller radius. Thin stroke
 
 ## Components
 
+- **Header:** an authored ticket-and-checkmark SVG on a white tile identifies the brand and doubles as the favicon. The GitHub link uses a44px outlined control with a darker hover background and white keyboard focus outline. Brand text and links remain separated on narrow screens.
 - **Primary buttons:** solid action color, minimum height (46px), explicit action labels, deeper hover and visible focus. Disabled controls reduce opacity and cannot repeat a busy request.
 - **Quiet and example buttons:** minimum height (44px). Quiet actions gain a neutral hover surface; examples use a light border and blue hover feedback.
 - **Fields:** visible labels, counters, help, white fill and a thin stroke. Focus changes the border and adds an outline. Invalid fields expose `aria-invalid`, reference the error and receive focus. Native required-field behavior remains in place.
