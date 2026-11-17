@@ -6,6 +6,7 @@ node_modules/
 coverage/
 frontend/dist/
 /qa-artifacts/
+/.impeccable/
 *.log
 
 # Local coaching, application and runtime records are not project deliverables.

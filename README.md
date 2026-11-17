@@ -2,7 +2,7 @@
 
 A small React workspace that summarizes fictional support issues, suggests a category and priority with Gemini, and saves validated results in MongoDB. Priority is advisory and needs human review.
 
-**Implemented:** responsive ticket form, loading/error states, AI result card, copyable ticket ID and saved-ticket lookup. The Express API handles input/output validation, AI analysis, persistence and safe failures. All 19 automated tests pass. A real browser create/retrieve flow and desktop/mobile layouts were checked. Public deployment is outside this scope.
+**Implemented:** a focused create/find workspace, three example reports, loading/error states, a saved-analysis pane, copyable ticket ID and saved-ticket lookup. Field errors focus the invalid input; successful requests reveal the result on mobile. The Express API handles input/output validation, AI analysis, persistence and safe failures. All 19 automated tests pass. A real browser create/retrieve flow and desktop/mobile layouts were checked. Public deployment is outside this scope.
 
 A learning project directed by Mehedi Hasan. The implementation and tests were developed with an AI coding assistant; the walkthroughs document the code for study and review. Uses React, Tailwind CSS, Vite, JavaScript ES modules, Express 5, MongoDB/Mongoose, Zod 4 and the Gemini REST API. [Backend walkthrough](docs/walkthrough.md) · [Frontend walkthrough](docs/frontend.md).
 
@@ -31,7 +31,7 @@ cd ai-support-ticket-triage
 
 The server waits for MongoDB and binds only to http://127.0.0.1:3001. It serves the built frontend and API from the same origin and uses the `triage_lab` database. Optional PORT overrides the port. If GET / returns JSON 404, run the build and restart the server. The entry file loads `.env` itself, so plain Node/nodemon startup also works.
 
-In the UI, choose **Use a sample issue**, then **Analyze & save ticket**. Copy the returned ID and use **Find ticket** to retrieve the stored analysis without another model call.
+In **New ticket**, choose an example or enter a fictional report, then **Analyze & save**. Use **Copy ID** to keep the returned ID. Switch to **Find ticket** and choose **Retrieve ticket** to read the stored analysis without another model call. **Clear draft** clears the report inputs and keeps the saved analysis available.
 
 For development, run `npm run dev` in one terminal and `npm run dev:frontend` in another. Open the Vite URL printed in the second terminal. Its `/tickets` proxy expects the backend on port 3001. Build again before viewing frontend changes through Express.
 
@@ -119,7 +119,7 @@ docs/frontend.md          frontend flow and basic React concepts
 
 - `npm test`: 19 passing tests, using real local HTTP plus explicit fixture storage/AI; service tests use simulated fetch responses. Includes frontend serving, security headers, missing builds and environment-file isolation.
 - `npm run build`: creates ignored `frontend/dist`; Express serves only that directory.
-- Browser checks: real Gemini/MongoDB creation (201) and saved lookup (200), whitespace/ID validation, absent ticket, copy/details, loading/disabled controls and a simulated provider 503. Desktop 1440px and mobile 390/320px layouts had no horizontal overflow or browser console errors. Automated DOM checks do not replace assistive-technology testing.
+- Browser checks: real Gemini/MongoDB creation (201) and saved lookup (200), field-specific whitespace/ID validation and focus, absent ticket, clipboard contents/details, draft preservation, loading/disabled controls and a simulated provider 503. Desktop 1440px, tablet 768px and mobile 390/320px layouts had no horizontal overflow or browser console errors. Mobile results were revealed after success; long unbroken content and HTML-as-text were checked. [Redesign verification](docs/ui-verification.md). Automated DOM checks do not replace assistive-technology testing.
 - An intermittent Windows test failure was traced to `listen(0)` assigning a fetch-blocked low port (observed 3659). Test listeners now choose available high ports; 20 repeated HTTP suites passed after the fix. No HTTP assertions are retried.
 - `npm run check:ai`: one real synthetic model request.
 - `npm run check:db`: read-only MongoDB ping.

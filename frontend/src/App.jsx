@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Icon from "./Icon.jsx";
 import TicketResult from "./TicketResult.jsx";
 import { createTicket, findTicket } from "./api.js";
 
 export default function App() {
+  const [mode, setMode] = useState("create");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [ticketId, setTicketId] = useState("");
@@ -12,14 +13,40 @@ export default function App() {
   const [formError, setFormError] = useState("");
   const [lookupError, setLookupError] = useState("");
   const [resultSource, setResultSource] = useState("");
+  const [invalidField, setInvalidField] = useState("");
+  const titleRef = useRef(null);
+  const bodyRef = useRef(null);
+  const lookupRef = useRef(null);
+  const resultRef = useRef(null);
+
+  useEffect(() => {
+    if (!ticket || busy || formError || lookupError) return;
+    resultRef.current.focus({ preventScroll: true });
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      resultRef.current.scrollIntoView({ behavior: reducedMotion ? "instant" : "smooth", block: "start" });
+    }
+  }, [ticket, busy, resultSource]);
+
+  function changeMode(nextMode) {
+    setMode(nextMode);
+    setFormError("");
+    setLookupError("");
+    setInvalidField("");
+  }
 
   async function submitTicket(event) {
     event.preventDefault();
     if (busy) return;
     setFormError("");
     setLookupError("");
+    setInvalidField("");
     if (!title.trim() || !body.trim()) {
-      setFormError("Add a title and a description. Spaces alone do not describe an issue.");
+      const field = !title.trim() ? "title" : "body";
+      setInvalidField(field);
+      setFormError(field === "title" ? "Add an issue title. Spaces alone are not enough." : "Describe what happened. Spaces alone are not enough.");
+      if (field === "title") titleRef.current.focus();
+      else bodyRef.current.focus();
       return;
     }
     setBusy("create");
@@ -30,7 +57,7 @@ export default function App() {
       setResultSource("create");
     } catch (error) {
       let message = error.message;
-      if (error.name === "TimeoutError") message = "The request timed out. Check the saved ticket before trying again; it may have completed.";
+      if (error.name === "TimeoutError") message = "The request timed out. Saving may still finish on the server. Retrying can create a duplicate ticket.";
       if (error.name === "TypeError") message = "Could not reach the server. Check that the backend is running.";
       setFormError(message);
     } finally {
@@ -43,8 +70,11 @@ export default function App() {
     if (busy) return;
     setLookupError("");
     setFormError("");
+    setInvalidField("");
     if (!/^[a-fA-F0-9]{24}$/.test(ticketId.trim())) {
       setLookupError("Enter the 24-character ticket ID from a saved result.");
+      setInvalidField("id");
+      lookupRef.current.focus();
       return;
     }
     setBusy("lookup");
@@ -62,68 +92,76 @@ export default function App() {
     }
   }
 
-  function useSample() {
-    setTitle("Course page keeps loading");
-    setBody("Fictional demo: the course list has shown a loading spinner for five minutes. Other pages still open, but I cannot access my courses.");
+  function useSample(sample) {
+    if (sample === "course") {
+      setTitle("Course page keeps loading");
+      setBody("Fictional demo: the course list has shown a loading spinner for five minutes. Other pages still open, but I cannot access my courses.");
+    }
+    if (sample === "login") {
+      setTitle("Cannot sign in after resetting password");
+      setBody("Fictional demo: I reset my password, but signing in still shows an invalid password message. This prevents me from accessing my account.");
+    }
+    if (sample === "slow") {
+      setTitle("Dashboard takes 30 seconds to open");
+      setBody("Fictional demo: the dashboard takes about 30 seconds to load after each refresh. It eventually opens, but switching between reports is slow too.");
+    }
     setFormError("");
+    setInvalidField("");
+    titleRef.current.focus();
   }
 
   function clearForm() {
     setTitle("");
     setBody("");
-    setTicket(null);
     setFormError("");
-    setLookupError("");
+    setInvalidField("");
+    titleRef.current.focus();
   }
 
-  return <div className="min-h-screen bg-[#f5f7f8] text-slate-800">
+  return <div className="app-shell">
     <a href="#main" className="skip-link">Skip to ticket workspace</a>
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-330 items-center justify-between gap-4 px-5 py-5 sm:px-9">
-        <div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-teal-800 text-white"><Icon name="ticket" className="size-6" /></span><div><p className="text-lg font-bold tracking-tight text-slate-950">Triage Desk<span className="text-teal-600">.</span></p><p className="text-xs text-slate-500">A little clarity for every issue</p></div></div>
-        <div className="flex items-center gap-5"><span className="hidden items-center gap-2 text-xs text-slate-500 sm:flex"><span className="size-1.5 rounded-full bg-teal-600" />Local demo</span><a className="text-sm font-medium text-slate-600 underline-offset-4 hover:text-teal-800 hover:underline" href="https://github.com/mehedi2486/ai-support-ticket-triage" target="_blank" rel="noreferrer">View source<span className="sr-only"> on GitHub, opens a new tab</span></a></div>
+    <header className="app-header">
+      <div className="header-inner">
+        <a className="brand" href="#main"><span className="brand-mark"><Icon name="ticket" /></span>Triage Desk</a>
+        <div className="header-links"><span className="demo-label">Local demo</span><a href="https://github.com/mehedi2486/ai-support-ticket-triage" target="_blank" rel="noreferrer">GitHub<Icon name="external" className="size-4" /><span className="sr-only">, opens a new tab</span></a></div>
       </div>
     </header>
-
-    <main id="main" className="mx-auto max-w-330 px-5 pb-10 pt-8 sm:px-9 sm:pt-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
-        <div><p className="mb-3 text-xs text-slate-500">Workspace <span className="mx-2 text-slate-300">/</span> Ticket triage</p><h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">From issue to understanding.</h1><p className="mt-3 max-w-140 text-sm leading-6 text-slate-600">Capture the context. Get a useful summary. Keep the next step human.</p></div>
-        <span className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600"><Icon name="shield" className="size-4 text-teal-700" />Fictional data only</span>
-      </div>
-
-      <p className="sr-only" role="status" aria-live="polite">{busy ? "Ticket request in progress." : formError || lookupError ? "Ticket request failed. Review the error message." : ticket ? (resultSource === "lookup" ? "Saved ticket retrieved." : "Ticket analyzed and saved.") : "Ready for a new ticket."}</p>
-      <div className="grid items-start gap-5 lg:grid-cols-[1.08fr_1fr] lg:gap-7">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-          <div className="mb-6 flex items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-slate-950">New ticket</h2><p className="mt-1 text-xs leading-5 text-slate-500">Start with what happened and who is affected.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-500">Create</span></div>
-          <form onSubmit={submitTicket} aria-busy={busy === "create"}>
-            <fieldset disabled={Boolean(busy)}>
-              <label className="field-label" htmlFor="title">Issue title</label>
-              <input id="title" name="title" className="field-input mt-2" placeholder="e.g. Course page keeps loading" required maxLength={100} value={title} onChange={event => setTitle(event.target.value)} aria-describedby="title-count" />
-              <p id="title-count" className="mt-2 text-right text-xs text-slate-600">{title.length}/100</p>
-              <label className="field-label mt-5" htmlFor="description">What happened?</label>
-              <textarea id="description" name="body" className="field-input mt-2 min-h-43 resize-y leading-6" placeholder="Describe the issue, its impact, and anything you have already tried..." required maxLength={1000} value={body} onChange={event => setBody(event.target.value)} aria-describedby="body-help body-count" />
-              <div className="mt-2 flex justify-between gap-4 text-xs"><p id="body-help" className="text-slate-500">Use made-up details. Leave out personal information.</p><p id="body-count" className="shrink-0 text-slate-600">{body.length}/1000</p></div>
-              <div className="mb-6 mt-5 flex flex-wrap items-center justify-between gap-3"><button className="text-xs font-semibold text-teal-700 underline-offset-4 hover:underline disabled:opacity-50" onClick={useSample} type="button">Use a sample issue</button><button className="text-xs text-slate-500 underline-offset-4 hover:underline disabled:opacity-50" onClick={clearForm} type="button">Clear</button></div>
-              {formError && <p role="alert" className="error-message mb-4">{formError}</p>}
-              <button type="submit" className="primary-button w-full">{busy === "create" ? "Analyzing and saving…" : "Analyze & save ticket"}<Icon name="arrow" className="size-4" /></button>
-            </fieldset>
-            <p className="mt-3 text-center text-xs leading-5 text-slate-500">Your result is saved only after the analysis is validated.</p>
-          </form>
-        </section>
-        <TicketResult key={ticket ? ticket._id : "empty"} ticket={ticket} busy={busy} resultSource={resultSource} />
-      </div>
-
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 sm:px-8">
-        <div className="grid items-start gap-5 lg:grid-cols-[1fr_1.2fr]">
-          <div className="flex gap-3"><span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><Icon name="search" className="size-4" /></span><div><h2 className="text-sm font-semibold text-slate-900">Pick up where you left off</h2><p className="mt-1 max-w-83 text-xs leading-5 text-slate-500">Find a saved ticket using its ID. The original analysis stays with it.</p></div></div>
-          <form onSubmit={lookupTicket} aria-busy={busy === "lookup"}>
-            <label htmlFor="ticket-id" className="sr-only">Saved ticket ID</label>
-            <div className="flex flex-col gap-2 sm:flex-row"><input id="ticket-id" className="field-input min-w-0 flex-1 text-sm" placeholder="Paste a 24-character ticket ID" maxLength={24} required value={ticketId} onChange={event => setTicketId(event.target.value)} disabled={Boolean(busy)} aria-describedby={lookupError ? "lookup-error" : undefined} /><button type="submit" className="secondary-button shrink-0" disabled={Boolean(busy)}>{busy === "lookup" ? "Finding…" : "Find ticket"}<Icon name="arrow" className="size-4" /></button></div>
-            {lookupError && <p id="lookup-error" role="alert" className="error-message mt-3">{lookupError}</p>}
-          </form>
+    <main id="main" className="workspace" tabIndex={-1}>
+      <div className="workspace-heading"><div><h1>Ticket workspace</h1><p>Create an issue report or find a saved analysis.</p></div><span className="workspace-note"><Icon name="shield" className="size-4" />Fictional reports only</span></div>
+      <div className="workbench">
+        <nav className="task-nav" aria-label="Ticket tools">
+          <button type="button" className={mode === "create" ? "task-button active" : "task-button"} aria-pressed={mode === "create"} disabled={Boolean(busy)} onClick={() => changeMode("create")}><Icon name="plus" className="size-4" />New ticket</button>
+          <button type="button" className={mode === "lookup" ? "task-button active" : "task-button"} aria-pressed={mode === "lookup"} disabled={Boolean(busy)} onClick={() => changeMode("lookup")}><Icon name="search" className="size-4" />Find ticket</button>
+        </nav>
+        <p className="sr-only" role="status" aria-live="polite">{busy ? "Ticket request in progress." : formError || lookupError ? "Ticket request failed. Review the error message." : ticket ? (resultSource === "lookup" ? "Saved ticket retrieved." : "Ticket analyzed and saved.") : "Ready for a new ticket."}</p>
+        <div className="workspace-grid">
+          <section className="editor" aria-labelledby="task-heading">
+            <div className="editor-heading"><h2 id="task-heading">{mode === "create" ? "What needs attention?" : "Find a saved ticket"}</h2><p>{mode === "create" ? "Describe the issue. We’ll summarize it and suggest how to triage it." : "Paste a ticket ID to retrieve its original report and analysis."}</p></div>
+            {mode === "create" ? <form onSubmit={submitTicket} aria-busy={busy === "create"}>
+              <fieldset disabled={Boolean(busy)}>
+                <div className="field-heading"><label htmlFor="title">Issue title</label><span id="title-count">{title.length}/100</span></div>
+                <input ref={titleRef} id="title" name="title" className="field-input" placeholder="A short description of the problem" required maxLength={100} value={title} onChange={event => setTitle(event.target.value)} aria-invalid={invalidField === "title"} aria-describedby={invalidField === "title" ? "form-error title-count" : "title-count"} />
+                <div className="field-heading description-heading"><label htmlFor="description">Description</label><span id="body-count">{body.length}/1000</span></div>
+                <textarea ref={bodyRef} id="description" name="body" className="field-input description-input" placeholder="What happened? Who is affected? What have you tried?" required maxLength={1000} value={body} onChange={event => setBody(event.target.value)} aria-invalid={invalidField === "body"} aria-describedby={invalidField === "body" ? "form-error body-help body-count" : "body-help body-count"} />
+                <p id="body-help" className="field-help">Use fictional details. Leave out names, emails and passwords.</p>
+                <div className="examples"><p>Try an example</p><div className="example-buttons"><button type="button" onClick={() => useSample("course")}>Page won’t load</button><button type="button" onClick={() => useSample("login")}>Can’t sign in</button><button type="button" onClick={() => useSample("slow")}>Slow dashboard</button></div></div>
+                {formError && <p id="form-error" role="alert" className="error-message"><Icon name="alert" className="size-4" />{formError}</p>}
+                <div className="form-actions"><button type="submit" className="primary-button">{busy === "create" ? "Analyzing…" : "Analyze & save"}<Icon name={busy === "create" ? "clock" : "arrow"} className="size-4" /></button><button className="quiet-button" onClick={clearForm} type="button">Clear draft</button></div>
+              </fieldset>
+              <p className="submit-help">Creates a saved ticket with an AI summary, category and priority.</p>
+            </form> : <form onSubmit={lookupTicket} aria-busy={busy === "lookup"}>
+              <label className="lookup-label" htmlFor="ticket-id">Saved ticket ID</label>
+              <input ref={lookupRef} id="ticket-id" className="field-input" placeholder="e.g. 507f1f77bcf86cd799439011" maxLength={24} required value={ticketId} onChange={event => setTicketId(event.target.value)} disabled={Boolean(busy)} aria-invalid={invalidField === "id"} aria-describedby={lookupError ? "lookup-error id-help" : "id-help"} autoCapitalize="none" spellCheck={false} />
+              <p id="id-help" className="field-help">The 24-character ID is shown with each saved analysis.</p>
+              {lookupError && <p id="lookup-error" role="alert" className="error-message"><Icon name="alert" className="size-4" />{lookupError}</p>}
+              <div className="form-actions"><button type="submit" className="primary-button" disabled={Boolean(busy)}>{busy === "lookup" ? "Finding…" : "Retrieve ticket"}<Icon name="search" className="size-4" /></button></div>
+              <div className="lookup-note"><Icon name="archive" className="size-5" /><div><h3>The original analysis, unchanged</h3><p>Looking up a ticket reads the saved result. It doesn’t use another AI request.</p></div></div>
+            </form>}
+          </section>
+          <TicketResult key={ticket ? ticket._id : "empty"} ticket={ticket} busy={busy} resultSource={resultSource} headingRef={resultRef} mode={mode} />
         </div>
-      </section>
-      <footer className="mt-7 flex flex-col justify-between gap-3 text-xs leading-5 text-slate-500 sm:flex-row"><p>AI suggests. People decide.</p><p>React + Tailwind CSS <span className="mx-2 text-slate-300">/</span> Express + MongoDB</p></footer>
+      </div>
+      <footer className="workspace-footer"><span>Demo workspace. No customer data.</span><span>AI suggestions need human review.</span></footer>
     </main>
   </div>;
 }
