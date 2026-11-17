@@ -76,3 +76,34 @@ test("local demo stops expensive creation attempts after ten per minute", async 
   assert.equal((await f.post({ title: "x", body: "y" })).status, 429);
   assert.equal(f.inputs.length, 10);
 });
+
+test("persistent quota is checked only after input validation and before AI or ticket storage", async t => {
+  let reservations = 0;
+  const f = await fixture(t, { consumeQuota: async () => {
+    reservations += 1;
+    throw Object.assign(new Error("Daily demo limit reached. Try again tomorrow."), { status: 429 });
+  } });
+  assert.equal((await f.post({ title: " ", body: "x" })).status, 400);
+  assert.equal(reservations, 0);
+  const response = await f.post({ title: "x", body: "y" });
+  assert.equal(response.status, 429);
+  assert.equal(reservations, 1);
+  assert.equal(f.inputs.length, 0);
+  assert.equal(f.saved.length, 0);
+});
+
+test("quota storage failure fails closed and health reports database readiness", async t => {
+  const f = await fixture(t, { isReady: () => false, consumeQuota: async () => { throw new Error("private quota database detail"); } });
+  const response = await f.post({ title: "x", body: "y" });
+  assert.equal(response.status, 500);
+  assert.deepEqual(await response.json(), { message: "Could not complete the request" });
+  assert.equal(f.inputs.length, 0);
+  assert.equal(f.saved.length, 0);
+  const unhealthy = await fetch(f.url + "/health");
+  assert.equal(unhealthy.status, 503);
+  assert.deepEqual(await unhealthy.json(), { status: "unavailable" });
+  const ready = await fixture(t);
+  const healthy = await fetch(ready.url + "/health");
+  assert.equal(healthy.status, 200);
+  assert.deepEqual(await healthy.json(), { status: "ok" });
+});

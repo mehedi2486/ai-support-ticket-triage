@@ -123,7 +123,7 @@ export default function App() {
     <header className="app-header">
       <div className="header-inner">
         <a className="brand" href="#main"><img className="brand-mark" src="/triage-mark.svg" width="32" height="32" alt="" />Triage Desk</a>
-        <div className="header-links"><span className="demo-label">Local demo</span><a href="https://github.com/mehedi2486/ai-support-ticket-triage" target="_blank" rel="noreferrer">GitHub<Icon name="external" className="size-4" /><span className="sr-only">, opens a new tab</span></a></div>
+        <div className="header-links"><span className="demo-label">Portfolio demo</span><a href="https://github.com/mehedi2486/ai-support-ticket-triage" target="_blank" rel="noreferrer">GitHub<Icon name="external" className="size-4" /><span className="sr-only">, opens a new tab</span></a></div>
       </div>
     </header>
     <main id="main" className="workspace" tabIndex={-1}>

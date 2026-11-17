@@ -11,6 +11,13 @@ const ticketSchema = new mongoose.Schema({
 
 export const Ticket = mongoose.model("Ticket", ticketSchema);
 
+const demoUsageSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  attempts: { type: Number, required: true, min: 0 },
+}, { versionKey: false });
+
+export const DemoUsage = mongoose.model("DemoUsage", demoUsageSchema);
+
 export async function connectDatabase(uri) {
   if (!uri) throw new Error("Set MONGODB_URI in your local .env file.");
   await mongoose.connect(uri, { dbName: "triage_lab", serverSelectionTimeoutMS: 8000, connectTimeoutMS: 8000, socketTimeoutMS: 8000 });

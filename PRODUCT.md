@@ -19,7 +19,8 @@ Create a fictional support ticket, inspect its generated summary/category/priori
 - React and Tailwind CSS frontend; Express, Zod, Gemini and MongoDB backend.
 - POST /tickets analyzes and saves; GET /tickets/:id reads an existing record without another AI call.
 - Scope stays focused on create and ID lookup. No session ticket list.
-- Localhost fictional-data demo. No authentication, public deployment, ticket editing, deletion, assignment or resolution workflow.
+- Fictional-data portfolio demo, runnable locally or on Render Free. No authentication, ticket editing, deletion, assignment or resolution workflow. Anyone knowing a ticket ID can retrieve the fictional record.
+- Daily AI attempts are capped in MongoDB; failed attempts count and service restarts do not reset the daily budget. Health checks report readiness without calling the model.
 - Category and priority are AI suggestions requiring human review. No model-accuracy claim.
 - Credentials remain server-side in ignored environment files.
 

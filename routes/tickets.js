@@ -2,9 +2,9 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import { ticketSchema } from "../ticket-schema.js";
 
-export function createTicketRouter({ Ticket, triage }) {
+export function createTicketRouter({ Ticket, triage, consumeQuota }) {
   const router = Router();
-  // Local single-process demo only. Use a shared limiter before public deployment.
+  // Short bursts are limited here; the server also reserves a persistent daily budget.
   let windowStart = Date.now();
   let requests = 0;
 
@@ -14,6 +14,7 @@ export function createTicketRouter({ Ticket, triage }) {
     if (Date.now() - windowStart >= 60_000) { windowStart = Date.now(); requests = 0; }
     if (requests >= 10) return res.status(429).json({ message: "Demo limit reached. Try again in a minute." });
     requests += 1;
+    await consumeQuota();
     const analysis = await triage(result.data);
     const ticket = await Ticket.create({ ...result.data, ...analysis });
     return res.status(201).json({ ticket });

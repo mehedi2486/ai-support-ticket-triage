@@ -1,6 +1,6 @@
 # Project guidance
 
-- Scope: a local, fictional-data support-ticket workspace with React/Tailwind and a two-route Express API. Keep it small and understandable. Public hosting is outside scope.
+- Scope: a fictional-data support-ticket workspace with React/Tailwind and a two-route Express API. Owner authorized public free Render deployment on 17 November 2026. Keep it small and understandable; do not select paid services.
 - Prefer straightforward syntax and explicit steps. Use advanced syntax only when it provides a necessary benefit, and explain unfamiliar constructs when introducing them. Match the owner's Express/Router/Mongoose/Zod learning baseline.
 - Finish the agreed implementation and verification before beginning the teaching walkthrough. Do not make owner quiz answers a dependency for authorized implementation. Explain the completed code afterward when requested.
 - Before editing, read README.md and the files the change touches. Preserve unrelated work.
